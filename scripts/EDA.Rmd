@@ -1,0 +1,71 @@
+---
+title: "Data Analysis"
+author: "Chaoqing"
+date: "2018/7/6"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+---
+
+```{r set-env,echo=FALSE,error=FALSE,warning=FALSE,message=FALSE,results='asis'}
+if(interactive()){
+  l_ply(gsub('.rdb$','',
+             dir('EDA_cache','rdb$',recursive = T,full.names = T)),
+        lazyLoad,envir=globalenv())
+}else{
+  knitr::opts_chunk$set(echo=FALSE,
+                        error=FALSE,
+                        warning=FALSE,
+                        message=FALSE,
+                        results='asis',
+                        cache=TRUE,
+                        fig.align = "center",
+                        fig.width=12,
+                        fig.height=9)
+  
+    knitr_opts_cache <- list(l1=FALSE)
+    knitr_opts_eval <- list(detail=TRUE,spark=FALSE)
+}
+```
+
+```{r load_library, cache=FALSE}
+library(tidyverse)
+library(magrittr)
+library(stringr)
+library(printr)
+library(glue)
+library(forcats)
+
+# some default settings for the packages
+theme_set(theme_bw() %+% theme(text = element_text(size=25)))
+options(knitr.kable.NA = '')
+```
+
+```{r load-youtube-pages}
+pages <- readLines('../data/youtube-video-info.json') %>% 
+  `[`(.!='') %>% map(jsonlite::fromJSON) %>%
+  map(`[`, c('webpage_url', 'upload_date', 'title', 'fps', 'duration',
+                 'description', 'height', 'width')) %>%
+  bind_rows() %>%
+  mutate(date=str_extract(title, '[\\d]{8,8}'))
+
+pic <- pages %>%
+  # filter(duration>1500) %>% 
+  ggplot(aes(lubridate::ymd(date), duration, text=date)) +
+  geom_col(position = 'identity')+
+  geom_point()+
+  geom_hline(aes(yintercept=1500), color="red")+
+  theme(axis.title.x = element_blank())
+
+plotly::ggplotly(pic)
+```
+
+```{r show-fetched-pages}
+pages %>% filter(duration>1500) %>% 
+  transmute(date, url=str_split_fixed(webpage_url, fixed('='), 2)[,2]) %>%
+  # listviewer::jsonedit()
+  jsonlite::toJSON() %>%
+  htmltools::tags$textarea()
+```
+

@@ -6,7 +6,7 @@ output:
   html_document:
     toc: true
     number_sections: true
-    keep_md: true
+    keep_md: false
 ---
 
 ```{r set-env,echo=FALSE,error=FALSE,warning=FALSE,message=FALSE,results='asis'}
@@ -15,7 +15,7 @@ if(interactive()){
              dir('EDA_cache','rdb$',recursive = T,full.names = T)),
         lazyLoad,envir=globalenv())
 }else{
-  knitr::opts_chunk$set(echo=FALSE,
+  knitr::opts_chunk$set(echo=TRUE,
                         error=FALSE,
                         warning=FALSE,
                         message=FALSE,

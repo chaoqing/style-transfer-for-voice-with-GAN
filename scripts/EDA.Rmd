@@ -6,6 +6,7 @@ output:
   html_document:
     toc: true
     number_sections: true
+    keep_md: true
 ---
 
 ```{r set-env,echo=FALSE,error=FALSE,warning=FALSE,message=FALSE,results='asis'}
